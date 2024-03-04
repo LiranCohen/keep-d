@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "useDefineForClassFields": false,
+    "lib": ["es2020", "esnext", "dom", "dom.iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "emitDeclarationOnly": true,
+    "declaration": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "types": [
+      "vite/client"
+    ]
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
