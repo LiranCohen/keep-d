@@ -3,7 +3,7 @@ import { ReactNode, createContext, useEffect, useState } from 'react';
 import { profile } from '../protocols/profile/profile';
 
 export type Profile = {
-  avatar: {
+  avatar?: {
     dataFormat: string,
     uri: string
   },
@@ -31,9 +31,7 @@ export const Web5Provider = ({ children }: { children: ReactNode }) => {
     const init = async (identity?: Identity): Promise<void> =>  {
       if (identity == undefined) {
         const { did, web5 } = await Web5.connect(connectOptions);
-  
         const profile = await setUpProfile(web5);
-  
         setIdentity({ did, web5, profile });
       }
     }
@@ -45,8 +43,17 @@ export const Web5Provider = ({ children }: { children: ReactNode }) => {
       });
   
       if (profileProtocol.protocols.length === 0) {
-        //TODO: install protocol
-        throw new Error('todo implement');
+        const install = window.confirm('Install Profile Protocol?');
+        if (!install) {
+          return;
+        }
+
+        const { status } = await web5.dwn.protocols.configure({
+          message: { definition: profile.definition }
+        });
+        if (status.code !== 202) {
+          throw new Error(`(${status.code}) - ${status.detail}`);
+        }
       }
   
       //query the profile information
@@ -58,7 +65,7 @@ export const Web5Provider = ({ children }: { children: ReactNode }) => {
       });
   
       if (avatarRecord.status.code !== 200) {
-        throw new Error('could not get avatar');
+        return {};
       }
   
       try {

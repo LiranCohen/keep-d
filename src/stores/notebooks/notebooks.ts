@@ -20,6 +20,11 @@ export class NotebooksStore {
 
     if (protocols.length !== 1) {
       // install protocol, maybe prompt first?
+      const install = window.confirm('Install Notebooks Protocol?');
+      if (!install) {
+        return;
+      }
+
       const { status } = await identity.web5.dwn.protocols.configure({
         message: { definition: notebook.definition }
       });
@@ -62,8 +67,8 @@ export class NotebooksStore {
     return store;
   }
 
-  async newNotebook(title: string): Promise<Notebook> {
-    const notebook = await Notebook.create(this.identity, title);
+  async newNotebook(title: string, description?: string): Promise<Notebook> {
+    const notebook = await Notebook.create(this.identity, title, description);
     const notebookStore = await NotebookStore.load(this.identity, notebook);
     this._notebooks = [
       notebookStore,

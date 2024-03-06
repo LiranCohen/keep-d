@@ -1,16 +1,14 @@
 import React from 'react';
 import { Toolbar, Drawer } from '@mui/material';
 import NotebooksList from './NotebookList';
-import AddNotebook from './AddNotebook';
-import { Notebook } from '../../stores/notebooks/notebook';
 
 const Sidebar: React.FC<{
   drawerWidth: number;
-  selectNotebook: (notebook: Notebook) => void;
 }> = ({ drawerWidth }) => {
 
   return (
     <Drawer
+      anchor='left'
       variant="permanent"
       sx={{
         width: drawerWidth,
@@ -20,7 +18,6 @@ const Sidebar: React.FC<{
     >
       <Toolbar />
       <NotebooksList />
-      <AddNotebook />
     </Drawer>
   )
 };

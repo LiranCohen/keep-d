@@ -24,7 +24,7 @@ const NotebooksList:React.FC<Props> = () => {
         <ListItemIcon>
           <LibraryBooksIcon />
         </ListItemIcon>
-        <ListItemText primary={notebook.title} />
+        <ListItemText primary={notebook.title} secondary={notebook.description || new Date(notebook.created).toLocaleString()} />
         <ListItemSecondaryAction>
           <IconButton edge="end" aria-label="delete" onClick={(event) => {
             event.stopPropagation();

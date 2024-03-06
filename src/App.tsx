@@ -9,10 +9,14 @@ function App() {
   const { identity } = useContext(Web5Context);
 
   return (
-    <NotebooksProvider identity={identity}>
+    <>
       {!identity && <> Loading... </>}
-      {identity && <Dashboard title='Notebooks' identity={identity} />}
-    </NotebooksProvider>
+      {identity && (
+        <NotebooksProvider identity={identity}>
+          <Dashboard title='Notebooks' identity={identity} />
+        </NotebooksProvider>
+      )}
+    </>
   )
 }
 

@@ -5,6 +5,7 @@ import { Record } from '@web5/api';
 
 export interface notebookData {
   title: string;
+  description?: string;
 }
 
 export class Notebook {
@@ -24,7 +25,7 @@ export class Notebook {
     return new Notebook(record!, data);
   }
 
-  static async create(identity: Identity, title: string): Promise<Notebook> {
+  static async create(identity: Identity, title: string, description?: string): Promise<Notebook> {
     const { status, record } = await identity.web5.dwn.records.create({
       message: {
         schema       : `${notebook.uri}/schemas/notebook`,
@@ -32,18 +33,18 @@ export class Notebook {
         dataFormat   : 'application/json',
         protocolPath : 'notebook'
       },
-      data: { title }
+      data: { title, description }
     });
 
     if (status.code !== 202) {
       throw new Error(`(${status.code}) - ${status.detail}`);
     }
 
-    return new Notebook(record!, { title });
+    return new Notebook(record!, { title, description });
   }
 
-  async update(title: string): Promise<void> {
-    const data = { title };
+  async update(title: string, description?: string): Promise<void> {
+    const data: notebookData = { title, description };
 
     const { status } = await this._record.update({
       data: new TextEncoder().encode(JSON.stringify(data))
@@ -64,6 +65,14 @@ export class Notebook {
   get record(): Record {
     return this._record;
   }
+
+  get updated(): string {
+    return this.record.dateModified;
+  }
+
+  get created(): string {
+    return this.record.dateCreated;
+  }
   
   get id(): string {
     return this._record.id;
@@ -71,6 +80,10 @@ export class Notebook {
 
   get title(): string {
     return this._data.title;
+  }
+
+  get description(): string | undefined  {
+    return this._data.description;
   }
 }
 

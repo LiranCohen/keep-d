@@ -39,7 +39,7 @@ const AddNotebook: React.FC<{
         color="primary"
         onClick={addNotebook}
         sx={{ mt: 1 }}
-      >Add Notebook</Button>
+      >New Notebook</Button>
     </Box>
   )
 };

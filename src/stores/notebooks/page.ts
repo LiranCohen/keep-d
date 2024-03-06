@@ -1,4 +1,4 @@
-import { Section } from './section';
+import { Section, SectionStore } from './section';
 import { Record } from '@web5/api';
 import { notebook } from '../../protocols/notebook/notebook';
 import { Identity } from '../../context/Web5Context';
@@ -42,16 +42,24 @@ export class Page {
     return this._record;
   }
 
+  get updated(): string {
+    return this.record.dateModified;
+  }
+
+  get created(): string {
+    return this.record.dateCreated;
+  }
+
   get id (): string {
     return this._record.id;
   }
 }
 
 export class PageStore {
-  _sections: Section[] = [];
+  _sections: Map<string, Section> = new Map();
 
-  private constructor(private identity: Identity, private _page: Page, ...sections: Section[]) {
-    this._sections = sections;
+  private constructor(private identity: Identity, private _page: Page, ...sections: SectionStore[]) {
+    this._sections = new Map(sections.map(({ section }) => [ section.id, section ]));
   }
 
   static async load(identity:Identity, page: Record | Page): Promise<PageStore> {
@@ -68,13 +76,25 @@ export class PageStore {
       throw new Error(`(${status.code}) - ${status.detail}`);
     }
 
-    const sections = records!.map(record => new Section(record, {}));
+    const sections = await Promise.all(records!.map(record => SectionStore.load(identity, record)));
     return new PageStore(identity, _page, ...sections);
   }
 
-  async addSection() {
-    const section = await Section.create(this.identity, this._page);
-    this._sections.push(section);
+  async addSection(title: string) {
+    const section = await Section.create(this.identity, this._page, { title });
+    this._sections.set(section.id, section);
+    return section;
+  }
+
+  async section(id: string): Promise<SectionStore | undefined> {
+    const section = this._sections.get(id);
+    if (section) {
+      return SectionStore.load(this.identity, section);
+    }
+  }
+
+  get sections() {
+    return [...this._sections.values()];
   }
 
   get page() {
@@ -82,6 +102,6 @@ export class PageStore {
   }
 
   get sectionsCount() {
-    return this._sections.length;
+    return this._sections.size;
   }
 }

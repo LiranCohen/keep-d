@@ -6,12 +6,15 @@ import { Avatar } from '@mui/material';
 const UserAvatar:React.FC<{ profile?: Profile }> = ({ profile }) => {
 
   const avatarProps = { bgcolor: 'secondary.main' };
+  const avatar = useMemo(() => {
+    return profile?.avatar;
+  }, [ profile ])
 
   const src = useMemo(() => {
-    if (profile?.avatar.dataFormat.startsWith('image/')) {
-      return profile.avatar.uri;
+    if (avatar?.dataFormat.startsWith('image/')) {
+      return avatar.uri;
     }
-  }, [ profile ])
+  }, [ avatar ])
 
   return <Avatar sx={{...avatarProps}} src={src} />
 }
