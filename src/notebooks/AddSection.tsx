@@ -1,4 +1,4 @@
-import { Fab, Box, TextField, Typography } from '@mui/material';
+import { Fab, Box, Typography, Paper } from '@mui/material';
 
 import AddIcon from '@mui/icons-material/Add';
 import TextIcon from '@mui/icons-material/Segment';
@@ -9,13 +9,15 @@ import { useContext, useMemo, useState } from 'react';
 import { NotebooksContext } from '../context/NotebooksContext';
 import { PendingContext } from '../compontents/dashboard/AddButton';
 import Dropdown from '../compontents/dropdown/Dropdown';
+import MarkdownEditor from '../compontents/markdown/MarkdownEditor';
+
 
 const AddSection: React.FC<{
   done?: () => void
 }> = ({ done }) => {
   const { api } = useContext(NotebooksContext);
 
-  const [ title, setTitle ] = useState<string>('');
+  const [ content, setContent ] = useState<string>('# Testing');
   const [ contentType, setContentType ] = useState<string>('');
   const { pending, setPending } = useContext(PendingContext);
 
@@ -46,6 +48,26 @@ const AddSection: React.FC<{
   const selectedType = useMemo(() => {
     return contentTypes.find(type => type.id === contentType)
   }, [ contentType, contentTypes ]);
+  const section = useMemo(() => {
+    const { label: selectedContentType  } = selectedType || {};
+    if (selectedContentType) {
+      if (selectedContentType.startsWith('text/')) {
+        return <Paper sx={{ minWidth: 550, margin: 10 }}>
+          <MarkdownEditor content={content} setContent={setContent} />
+        </Paper>;
+      }
+
+      if (selectedContentType.startsWith('application/')) {
+        return <>Add App Data</>;
+      }
+
+      if (selectedContentType.startsWith('image/')) {
+        return <>Add Image</>;
+      }
+    }
+
+    return <> Select Content Type </>;
+  }, [ selectedType, content ]);
 
   const selectType = (item: { id:string }) => {
     setContentType(item.id);
@@ -60,13 +82,13 @@ const AddSection: React.FC<{
   }, [ api?.currentPage ]);
 
   const disabledAdd = useMemo(() => {
-    return !api || !page|| pending;
-  }, [ api, page, pending ]);
+    return !contentType || !api || !page || pending;
+  }, [ api, page, pending, contentType ]);
 
   const addSection = async () => {
-    if (api && page && notebook) {
+    if (api && page && notebook && contentType && content) {
       setPending(true);
-      await api.addSection(notebook, page, title);
+      await api.addSection(notebook, page, contentType, content);
       if (done) {
         done();
       }
@@ -79,32 +101,17 @@ const AddSection: React.FC<{
       display: 'flex',
       flexDirection: 'column',
       color: 'white',
-      mt: 'auto'
+      mt: 'auto',
     }}>
-      <Typography sx={{ pb: 2, mb: 2, borderBottom: 1, borderColor: 'divider' }} variant='h6' component='h6'>Add a new Section</Typography>
-      <TextField
-        color='secondary'
-        focused
-        fullWidth
-        required
-        variant="outlined"
-        label="Title"
-        placeholder="Notebook Title..."
-        value={title}
-        sx={{ mb: 3 }}
-        onChange={e => setTitle(e.target.value)}
-        InputProps={{
-          style: {
-            color: 'white',
-          },
-        }}
-        size="small"
-      />
-      <Dropdown items={contentTypes} handler={selectType} currentItem={selectedType} />
-      <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
-        <Fab size='small' disabled={disabledAdd} color='secondary' sx={{ position: 'relative' }} onClick={addSection}>
-          <AddIcon />
-        </Fab>
+      <Box sx={{ display: 'flex', minHeight: 300, minWidth: 300, justifyContent: 'space-around', flexDirection: 'column', alignItems: 'center' }}>{section}</Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: 250 }}>
+        <Typography align='center' sx={{ pb: 2, mb: 2, borderBottom: 1, borderColor: 'divider', justifyContent: 'space-between' }} variant='h6' component='h6'>Add a new Section</Typography>
+        <Dropdown items={contentTypes} handler={selectType} currentItem={selectedType} />
+        <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+          <Fab size='small' disabled={disabledAdd} color='secondary' sx={{ position: 'relative' }} onClick={addSection}>
+            <AddIcon />
+          </Fab>
+        </Box>
       </Box>
     </Box>
   )

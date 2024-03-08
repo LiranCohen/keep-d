@@ -3,12 +3,11 @@ import { Identity } from "../../context/Web5Context";
 import { notebook } from "../../protocols/notebook/notebook";
 import { Page } from "./page";
 
-type sectionData = { title: string };
 
 export class Section {
-  constructor(private _record: Record, private _data: sectionData) {}
+  constructor(private _record: Record, private _data: unknown) {}
 
-  static async create(identity: Identity, parent: Page, data: sectionData): Promise<Section> {
+  static async create(identity: Identity, parent: Page, dataFormat: string, data: unknown): Promise<Section> {
 
     const { status, record } = await identity.web5.dwn.records.create({
       message: {
@@ -16,7 +15,7 @@ export class Section {
         contextId    : parent.record.contextId,
         schema       : `${notebook.uri}/schemas/section`,
         protocol     : notebook.uri,
-        dataFormat   : 'application/json',
+        dataFormat   : dataFormat,
         protocolPath : 'notebook/page/section'
       },
       data: data, 
@@ -41,9 +40,14 @@ export class Section {
     return this.record.dateCreated;
   }
 
-  get title(): string {
-    return this._data.title;
+  get data(): unknown {
+    return this._data;
   }
+
+  get dataFormat(): string {
+    return this._record.dataFormat;
+  }
+
   get notebookId(): string {
     return this._record.parentId;
   }

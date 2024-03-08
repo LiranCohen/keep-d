@@ -23,7 +23,7 @@ export interface PagesApi {
 
 export interface SectionsApi {
   sections: Section[];
-  addSection: (notebook: Notebook, page: Page, title: string) => Promise<Section>;
+  addSection: (notebook: Notebook, page: Page, dataFormat: string, data: unknown) => Promise<Section>;
   // removeSection: (page: Page, id: string) => Promise<void>;
   selectSection: (notebook: Notebook, page: Page, id: string) => Promise<Section>;
   currentSection: Section | undefined;
@@ -148,12 +148,12 @@ export const NotebooksProvider = ({ children, identity }: { children: ReactNode,
         throw new Error(`section ${id} not found in page ${page.id} of notebook: ${notebook.id}`);
       }
 
-      const addSection = async (notebook: Notebook, page: Page, title:string) => {
+      const addSection = async (notebook: Notebook, page: Page, dataFormat:string, data: unknown) => {
         if (pageStore?.page.id !== page.id) {
           await selectPage(notebook, page.id);
         }
 
-        const section = await pageStore!.addSection(title);
+        const section = await pageStore!.addSection(dataFormat, data);
         setSections([...sections, section]);
         return section;
       }

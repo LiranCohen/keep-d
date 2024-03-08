@@ -80,8 +80,8 @@ export class PageStore {
     return new PageStore(identity, _page, ...sections);
   }
 
-  async addSection(title: string) {
-    const section = await Section.create(this.identity, this._page, { title });
+  async addSection(dataFormat: string, data: unknown) {
+    const section = await Section.create(this.identity, this._page, dataFormat, data);
     this._sections.set(section.id, section);
     return section;
   }
