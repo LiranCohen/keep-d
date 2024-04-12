@@ -14,7 +14,7 @@ const notebookDefinition = {
       dataFormats: ['application/json']
     },
     section: {
-      dataFormats: ['application/json']
+      dataFormats: ['application/json', 'text/markdown', 'text/plain', 'image/jpeg', 'image/png']
     },
   },
   structure: {

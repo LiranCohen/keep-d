@@ -3,7 +3,6 @@ import { Identity } from "../../context/Web5Context";
 import { notebook } from "../../protocols/notebook/notebook";
 import { Page } from "./page";
 
-
 export class Section {
   constructor(private _record: Record, private _data: unknown) {}
 
@@ -11,14 +10,13 @@ export class Section {
 
     const { status, record } = await identity.web5.dwn.records.create({
       message: {
-        parentId     : parent.id,
-        contextId    : parent.record.contextId,
-        schema       : `${notebook.uri}/schemas/section`,
-        protocol     : notebook.uri,
-        dataFormat   : dataFormat,
-        protocolPath : 'notebook/page/section'
+        parentContextId : parent.record.contextId,
+        schema          : `${notebook.uri}/schemas/section`,
+        protocol        : notebook.uri,
+        dataFormat      : dataFormat,
+        protocolPath    : 'notebook/page/section'
       },
-      data: data, 
+      data: { data }, 
     });
 
     if (status.code !== 202) {
@@ -41,7 +39,7 @@ export class Section {
   }
 
   get data(): unknown {
-    return this._data;
+    return (this._data as { data: unknown }).data;
   }
 
   get dataFormat(): string {

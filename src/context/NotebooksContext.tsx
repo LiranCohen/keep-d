@@ -8,7 +8,7 @@ import { Section, SectionStore } from '../stores/notebooks/section';
 
 export interface NotebookApi {
   notebooks: Notebook[];
-  create: (title: string, description?: string) => Promise<Notebook>;
+  create: (title: string, description?: string) => Promise<NotebookStore>;
   remove: (id: string) => Promise<void>;
   selectNotebook: (id: string) => Promise<void>;
   currentNotebook: Notebook | undefined;
@@ -54,10 +54,10 @@ export const NotebooksProvider = ({ children, identity }: { children: ReactNode,
 
   const api = useMemo(() => {
     if (identity && store && notebooks)  {
-      const create = async (title: string, description?: string): Promise<Notebook> => {
+      const create = async (title: string, description?: string): Promise<NotebookStore> => {
         const notebook = await store!.newNotebook(title, description)
         setNotebooks([...notebooks, notebook]);
-        return notebook;
+        return NotebookStore.load(identity, notebook);
       }
 
       const remove = async (id: string) => {

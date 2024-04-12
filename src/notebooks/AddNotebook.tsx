@@ -1,8 +1,39 @@
 import { Fab, Box, TextField, Typography } from '@mui/material';
 import { useContext, useMemo, useState } from 'react';
-import { NotebooksContext } from '../context/NotebooksContext';
+import { NotebookApi, NotebooksContext } from '../context/NotebooksContext';
 import AddIcon from '@mui/icons-material/Add';
 import { PendingContext } from '../compontents/dashboard/AddButton';
+
+const defaultContent = `
+# Welcome to Your Notebook
+
+## Quick Start Guide
+
+This is a quick start guide to help you get familiar with our markdown features.
+
+### Basic Formatting
+
+- **Bold** text for emphasis
+- *Italic* text for subtle emphasis
+- \`Code\` snippets for code or commands
+
+### Lists
+
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+
+### Links
+
+Check out [OpenAI](https://www.openai.com) for more information.
+
+### Code Block
+
+\`\`\`python
+def hello_world():
+    print("Hello, world!")
+`
 
 const AddNotebook: React.FC<{
   done?: () => void
@@ -17,10 +48,16 @@ const AddNotebook: React.FC<{
     return !api || !title || pending;
   }, [ api, title, pending ]);
 
+  const createNotebook = async (api: NotebookApi, title: string, description: string) => {
+    const notebook = await api.create(title, description);
+    const page = await notebook.addPage();
+    await page.addSection('text/markdown', defaultContent);
+  }
+
   const addNotebook = async () => {
     if (api) {
       setPending(true);
-      await api.create(title, description);
+      await createNotebook(api, title, description)
       setTitle('');
       setDescription('');
       setPending(false);

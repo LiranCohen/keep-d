@@ -53,7 +53,7 @@ const MilkdownEditor: React.FC<{
           ctx.set(defaultValueCtx, content);
           const listener = ctx.get(listenerCtx);
 
-          listener.markdownUpdated((ctx, markdown, prevMarkdown) => {
+          listener.markdownUpdated((_ctx, markdown, prevMarkdown) => {
             if (markdown !== prevMarkdown) {
               setContent(markdown);
             }

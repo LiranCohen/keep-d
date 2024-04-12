@@ -17,12 +17,11 @@ export class Page {
 
     const { status, record } = await identity.web5.dwn.records.create({
       message: {
-        parentId     : parent.id,
-        contextId    : parent.record.contextId,
-        schema       : `${notebook.uri}/schemas/page`,
-        protocol     : notebook.uri,
-        dataFormat   : 'application/json',
-        protocolPath : 'notebook/page'
+        parentContextId : parent.record.contextId,
+        schema          : `${notebook.uri}/schemas/page`,
+        protocol        : notebook.uri,
+        dataFormat      : 'application/json',
+        protocolPath    : 'notebook/page'
       },
       data: { page: {} }
     });
@@ -80,8 +79,28 @@ export class PageStore {
     return new PageStore(identity, _page, ...sections);
   }
 
+  private transformData(dataFormat: string, data: unknown): unknown {
+    const prefix = dataFormat.split('/')[0];
+    switch (prefix) {
+    case 'text':
+      return new TextEncoder().encode(data as string);
+    case 'application':
+      console.log('application');
+      if (dataFormat === 'application/json') {
+        return data as object;
+      }
+      break;
+    case 'image':
+      console.log('blob');
+      return data as Blob;
+    default:
+      console.log('data');
+      return data as ArrayBuffer;
+    }
+  }
+
   async addSection(dataFormat: string, data: unknown) {
-    const section = await Section.create(this.identity, this._page, dataFormat, data);
+    const section = await Section.create(this.identity, this._page, dataFormat, data as object);
     this._sections.set(section.id, section);
     return section;
   }

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { 
   Typography,
   Box, Breadcrumbs, Link, Paper, Container,
@@ -11,6 +11,7 @@ import { Notebook } from '../../stores/notebooks/notebook';
 import { Section } from '../../stores/notebooks/section';
 import ActionButtonWithChips from './AddButton';
 import Dropdown from '../dropdown/Dropdown';
+import MarkdownEditor from '../markdown/MarkdownEditor';
 
 const Content: React.FC<{ drawerWidth: number }> = ({ drawerWidth }) => {
   const { api } = useContext(NotebooksContext);
@@ -42,7 +43,7 @@ const Content: React.FC<{ drawerWidth: number }> = ({ drawerWidth }) => {
         flexDirection: 'column',
       }}
     >
-      <BreadCrumbBar notebook={notebook} pages={pages} page={page} section={section} />
+      <BreadCrumbBar notebook={notebook} pages={pages} page={page} />
       {!notebook && <Container sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
         <Paper sx={{ padding: 4, zIndex: (theme) => theme.zIndex.drawer }}>
           <Typography variant='h4' component='h4'>Select or Create</Typography>
@@ -96,7 +97,7 @@ const NotebookContent:React.FC<{ pageDrawerWidth: number }> = () => {
   return (
     <Box sx={{ maxWidth: 900, minWidth: 700, width: '100%', m: 'auto', mt: 0 }}>
       {currentPage && <PageBar page={currentPage} index={pages.indexOf(currentPage)} />}
-      {sections.map(section => <Typography key={section.id}>{section.title || 'no title' }</Typography>)}
+      {sections.map(section => <ContentElement key={section.id} data={section.data} dataFormat={section.dataFormat} />)}
       {!currentPage && pages.length === 0 && <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', margin: 3 }}>
         <Typography>There are no pages, maybe you should add a new one.</Typography>
       </Box>}
@@ -108,8 +109,7 @@ const BreadCrumbBar: React.FC<{
   notebook?: Notebook;
   page?: Page;
   pages?: Page[];
-  section?: Section;
-}> = ({ notebook, page, pages, section }) => {
+}> = ({ notebook, page, pages }) => {
   const { api } = useContext(NotebooksContext);
   const label = (page: number) => `Page ${page}`
   const currentPage = useMemo(() => {
@@ -142,10 +142,26 @@ const BreadCrumbBar: React.FC<{
           currentItem={currentPage}
           handler={(item) => api?.selectPage(notebook, item.id)}
         />}
-        {section && <Typography>{section.title || 'no title'}</Typography>}
       </Breadcrumbs>
     </Box>
   );
 };
+
+
+const ContentElement: React.FC<{ dataFormat: string, data: unknown }> = ({ dataFormat, data }) => {
+  const formatPrefix = dataFormat.split('/')[0];
+  const [content, setContent] = useState(data);
+
+  switch(formatPrefix) {
+  case 'text':
+    return <MarkdownEditor content={content as string} setContent={(content) => setContent(content)}  />
+  case 'application':
+    return <div>Application</div>
+  case 'image':
+    return <div>Image DropZone</div>
+  default:
+    <div>Unsupported Type</div>
+  }
+}
 
 export default Content;
