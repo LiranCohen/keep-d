@@ -16,9 +16,9 @@ export type Identity = {
 };
 
 const connectOptions = {
-  techPreview: {
-    dwnEndpoints: ["http://localhost:3000/"],
-  },
+  // techPreview: {
+  //   dwnEndpoints: ["http://localhost:3000/"],
+  // },
 };
 
 export const Web5Context = createContext<{ identity?: Identity; }>({ });
@@ -31,6 +31,7 @@ export const Web5Provider = ({ children }: { children: ReactNode }) => {
     const init = async (identity?: Identity): Promise<void> =>  {
       if (identity == undefined) {
         const { did, web5 } = await Web5.connect(connectOptions);
+        console.log('did', did);
         const profile = await setUpProfile(web5);
         setIdentity({ did, web5, profile });
       }
